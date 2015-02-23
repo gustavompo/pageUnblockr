@@ -14,11 +14,11 @@
             "19": "content/duster19.png",
             "38": "content/duster38.png"
         },
-        "default_title": "Unmodal boring page's modals!"
+        "default_title": "Unblock page!"
     },
     "author": "Gustavo Maloste",
     "background": {
-        "scripts": ["scripts/unmodalit-background.js"],
+        "scripts": ["scripts/unblocker-background.js"],
         "persistent": false
     },
     "permissions": [
@@ -26,6 +26,9 @@
         "http://*/*",
         "https://*/*",
         "tabs"
-    ]
-
+    ],
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["scripts/mlst/mlst.js", "scripts/mlst/mlst-math.js", "scripts/unblocker.js"]
+    }]
 }
