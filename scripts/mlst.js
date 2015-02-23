@@ -40,16 +40,67 @@ mlst = (function() {
         };
     }
 
-    var toArr = function(els){
-        return [].slice.call(els);
+
+
+    var $mlst = function(el) {
+
+        var appl = function() {
+            var args = toArr(arguments);
+            var func = args[0];
+            var baseEl = args[1];
+            args = args.slice(2);
+            if (Object.prototype.toString.call( baseEl ) === '[object Array]') {
+                return baseEl.map(function(e) {
+                    return func(e, args);
+                });
+            } else {
+                return func(baseEl, args);
+            }
+        }
+
+        var toArr = function(els) {
+            return [].slice.call(els);
+        }
+        var _css = function(el, valueArray) {
+            var value = valueArray[0];
+            var valueToSet = valueArray.length > 1 ? valueArray[1] : undefined;
+            if(valueToSet){
+                el.style.setProperty(value,valueToSet);
+            }
+            return el.ownerDocument.defaultView.getComputedStyle(el, null)[value];
+        }
+
+        var css = function(value, toSet) {
+            return appl(_css, _underlyingElement, value, toSet);
+        }
+        var docEl = function(param) {
+            if(Object.prototype.toString.call( param ) === '[object Array]' || typeof(param)==='object'){
+                return param;
+            }else if (param.charAt(0) === '.') {
+                return toArr(document.getElementsByClassName(param.substring(1)));
+            } else if (param.charAt(0) === '#') {
+                return toArr(document.getElementById(param.substring(1)));
+            } else {
+                return toArr(document.getElementsByTagName(param));
+            }
+        }
+        var _underlyingElement = docEl(el);
+        var result = {
+            e: _underlyingElement,
+            css: css
+        };
+        return result;
     }
+
+
+
     var getFunkyDivs = function() {
         var theFunkyOnes = [];
-        var allDivsNonAuto = toArr(document.getElementsByTagName('div')).filter(function(el) {
-            var zIx = el.style['z-index'];
+        var allDivsNonAuto = $mlst('div').e.filter(function(el) {
+            var zIx = $mlst(el).css('zIndex');
             if (zIx != 'auto' &&
                 parseInt(zIx) > 0 &&
-                el.style['display'] !== 'none') {
+                $mlst(el).css('display') !== 'none') {
                 return el;
             }
         });
@@ -57,11 +108,11 @@ mlst = (function() {
             theFunkyOnes = allDivsNonAuto;
         } else {
             var zIxs = allDivsNonAuto.map(function(el) {
-                return parseInt(el.style['z-index']);
+                return parseInt($mlst(el).css('zIndex'));
             })
             var elegibleZIxs = positiveOutsideStandDeviation(zIxs);
             theFunkyOnes = allDivsNonAuto.filter(function(el) {
-                if (elegibleZIxs.indexOf(parseInt(el.style['z-index'])) > 0) {
+                if (elegibleZIxs.indexOf(parseInt($mlst(el).css('zIndex'))) >= 0) {
                     return el;
                 }
             });
@@ -75,8 +126,21 @@ mlst = (function() {
             el.remove();
         });
     }
+
+    var restoreScrollbar = function(){
+        var overflow = $mlst(document.body).css('overflow');
+        if(overflow === 'hidden'){
+            $mlst(document.body).css('overflow', 'visible');
+        }
+    }
+
+    var cleanScreen = function(divs){
+        removeFunkyDivs(divs);
+        restoreScrollbar();
+    }
     return {
         getFunkyDivs: getFunkyDivs,
-        removeFunkyDivs: removeFunkyDivs
+        removeFunkyDivs: removeFunkyDivs,
+        cleanScreen : cleanScreen
     };
 }(this));
