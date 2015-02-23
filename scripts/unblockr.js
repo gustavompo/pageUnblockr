@@ -1,4 +1,4 @@
-var unblocker = (function() {
+var unblockr = (function() {
     var getBlockerElements = function() {
         var blockers = [];
         var elementsNonAuto = $mlst('div').e.concat($mlst('span').e);
@@ -57,9 +57,11 @@ var unblocker = (function() {
         restoreScrollbar();
     }
 
+    var areThereBlkrs = function(){return true;}
+    var removeBlockersNw = function(){return alert('removed');}
     return {
-        areThereBlockers: areThereBlockers,
-        removeBlockersNow: removeBlockersNow
+        areThereBlockers: areThereBlkrs,
+        removeBlockersNow: removeBlockersNw
     };
 }());
 
@@ -71,10 +73,10 @@ chrome.runtime.onMessage.addListener(
         if (sender.tab) {
             switch (request) {
                 case 'areThereBlockers?':
-                    return unblocker.areThereBlockers();
+                    return unblockr.areThereBlockers();
                     break;
                 case 'removeBlockersNow!':
-                    unblocker.removeBlockersNow();
+                    unblockr.removeBlockersNow();
                     break;
             }
         }
