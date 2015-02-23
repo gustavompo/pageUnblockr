@@ -1,5 +1,5 @@
 (function() {
-    var funky = mlst.getFunkyDivs();
+    var funky = mlst.getFunkyElements();
     if (funky.length > 0) {
         mlst.cleanScreen(funky);
     }

@@ -49,7 +49,7 @@ mlst = (function() {
             var func = args[0];
             var baseEl = args[1];
             args = args.slice(2);
-            if (Object.prototype.toString.call( baseEl ) === '[object Array]') {
+            if (Object.prototype.toString.call(baseEl) === '[object Array]') {
                 return baseEl.map(function(e) {
                     return func(e, args);
                 });
@@ -64,8 +64,9 @@ mlst = (function() {
         var _css = function(el, valueArray) {
             var value = valueArray[0];
             var valueToSet = valueArray.length > 1 ? valueArray[1] : undefined;
-            if(valueToSet){
-                el.style.setProperty(value,valueToSet);
+            if (valueToSet) {
+                //el.style.setProperty(value,valueToSet);
+                el.style.cssText += value + ':' + valueToSet + ' !important';
             }
             return el.ownerDocument.defaultView.getComputedStyle(el, null)[value];
         }
@@ -74,9 +75,9 @@ mlst = (function() {
             return appl(_css, _underlyingElement, value, toSet);
         }
         var docEl = function(param) {
-            if(Object.prototype.toString.call( param ) === '[object Array]' || typeof(param)==='object'){
+            if (Object.prototype.toString.call(param) === '[object Array]' || typeof(param) === 'object') {
                 return param;
-            }else if (param.charAt(0) === '.') {
+            } else if (param.charAt(0) === '.') {
                 return toArr(document.getElementsByClassName(param.substring(1)));
             } else if (param.charAt(0) === '#') {
                 return toArr(document.getElementById(param.substring(1)));
@@ -94,9 +95,10 @@ mlst = (function() {
 
 
 
-    var getFunkyDivs = function() {
+    var getFunkyElements = function() {
         var theFunkyOnes = [];
-        var allDivsNonAuto = $mlst('div').e.filter(function(el) {
+        var elementsNonAuto = $mlst('div').e.concat($mlst('span').e);
+        var allDivsNonAuto = elementsNonAuto.filter(function(el) {
             var zIx = $mlst(el).css('zIndex');
             if (zIx != 'auto' &&
                 parseInt(zIx) > 0 &&
@@ -120,27 +122,35 @@ mlst = (function() {
         return theFunkyOnes;
     }
 
-    var removeFunkyDivs = function(divs) {
-        var toRemove = divs || getFunkyDivs();
+    var removeFunkyElements = function(elements) {
+        var toRemove = elements || getFunkyElements();
         toRemove.map(function(el) {
             el.remove();
         });
     }
 
-    var restoreScrollbar = function(){
-        var overflow = $mlst(document.body).css('overflow');
-        if(overflow === 'hidden'){
-            $mlst(document.body).css('overflow', 'visible');
+    var restoreScrollFrom = function(el) {
+        var overflow = $mlst(el).css('overflow');
+        if (overflow === 'hidden') {
+            $mlst(el).css('overflow', 'visible');
         }
     }
+    var restoreScrollbar = function() {
+        [
+            document.children[0], 
+            document.body
+        ].map(function(e) {
+            restoreScrollFrom(e);
+        });
+    }
 
-    var cleanScreen = function(divs){
-        removeFunkyDivs(divs);
+    var cleanScreen = function(elements) {
+        removeFunkyElements(elements);
         restoreScrollbar();
     }
     return {
-        getFunkyDivs: getFunkyDivs,
-        removeFunkyDivs: removeFunkyDivs,
-        cleanScreen : cleanScreen
+        getFunkyElements: getFunkyElements,
+        removeFunkyElements: removeFunkyElements,
+        cleanScreen: cleanScreen
     };
 }(this));
