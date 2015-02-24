@@ -52,32 +52,30 @@ var unblockr = (function() {
         var blockers = getBlockerElements();
         return blockers.length > 0;
     }
-    var removeBlockersNow = function() {
+    var removeBlockersNow = function(elements) {
         removeBlockerElements(elements);
         restoreScrollbar();
     }
-
-    var areThereBlkrs = function(){return true;}
-    var removeBlockersNw = function(){return alert('removed');}
     return {
-        areThereBlockers: areThereBlkrs,
-        removeBlockersNow: removeBlockersNw
+        areThereBlockers: areThereBlockers,
+        removeBlockersNow: removeBlockersNow
     };
 }());
 
-
-
+chrome.runtime.sendMessage({
+    init: true,
+    blockrs: unblockr.areThereBlockers()
+});
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (sender.tab) {
-            switch (request) {
-                case 'areThereBlockers?':
-                    return unblockr.areThereBlockers();
-                    break;
-                case 'removeBlockersNow!':
-                    unblockr.removeBlockersNow();
-                    break;
-            }
+        switch (request) {
+            case 'areThereBlockers?':
+                sendResponse(unblockr.areThereBlockers());
+                break;
+            case 'removeBlockersNow!':
+                unblockr.removeBlockersNow();
+                break;
         }
+
     });

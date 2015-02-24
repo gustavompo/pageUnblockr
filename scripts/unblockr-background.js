@@ -7,14 +7,26 @@ var sendMessage = function(message, callback) {
     });
 }
 
-sendMessage('areThereBlockers?', function(thereAreBlockers) {
-    if (thereAreBlockers === true) {
-        chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
-            chrome.pageAction.show(tabId);
-        });
 
-        chrome.pageAction.onClicked.addListener(function() {
-            sendMessage('removeBlockersNow!');
-        });
-    }
-});
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request && request.init && request.blockrs) {
+            chrome.tabs.query({
+                active: true,
+                currentWindow: true
+            }, function(tabs) {
+                chrome.pageAction.show(tabs[0].id);
+            });
+
+            chrome.pageAction.onClicked.addListener(function() {
+                sendMessage('removeBlockersNow!');
+                chrome.tabs.query({
+                    active: true,
+                    currentWindow: true
+                }, function(tabs) {
+                    chrome.pageAction.hide(tabs[0].id);
+                });
+            });
+        }
+
+    });
