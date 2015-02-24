@@ -16,7 +16,7 @@
         };
         var outsideSD = [];
         validValues.map(function(el) {
-            if (el >= standDevToUse.max || el <= standDevToUse.min) {
+            if (el >= standDevToUse.max) {
                 outsideSD.push(el);
             }
         })
