@@ -1,52 +1,96 @@
 (function(global) {
+    'use strict';
 
     var mlst = function(input) {
-        var _apply = function() {
-            var args = _toArr(arguments);
-            var func = args[0];
-            var baseEl = args[1];
-            args = args.slice(2);
-            if (Object.prototype.toString.call(baseEl) === '[object Array]') {
-                return baseEl.map(function(e) {
-                    return func(e, args);
+
+        // Shorthand to convert items to array
+        var toArray = function(items) {
+            return [].slice.call(items);
+        }
+
+        // returns whether the argument is an array or not
+        var isArray = function(item){
+            return Object.prototype.toString.call(item) === '[object Array]';
+        }
+
+        // returns whether the argument is an object or not
+        var isObject = function(item){
+            return typeof(item) === 'object';
+        }
+
+        // Executes a function for the all elements, bypassing arguments
+        // Accept both a single element and an array of elements
+        var apply = function(func, element, arg0, arg1, arg2, arg3, arg4) {
+
+            if (isArray(element)) {
+                return element.map(function(e) {
+                    return func(e, arg0, arg1, arg2, arg3, arg4);
                 });
+            }
+
+            return func(element, arg0, arg1, arg2, arg3, arg4);
+        }
+
+
+        // Set a property value if provided and return it's value
+        var css = function(element, property, value) {
+            if (value) {
+
+                //if its important, setProperty will not work
+                if(value.indexOf('!impotant') >= 0){
+
+                    element.style.removeProperty(property);
+                    element.style.cssText += property + ':' + value;
+
+                }else{
+
+                    element.style.setProperty(property, value);
+                }
+            }
+            return element.ownerDocument.defaultView.getComputedStyle(element, null)[property];
+        }
+
+        
+        // handles main object input and query (if necessary) to DOM element(s)
+        // if the argument is an array or object, then it's returned, 
+        // or a query is performed against document to retrieve elements given a selector
+        var dom = function(element) {
+            if(!element){
+                return;
+            }
+
+            if ( isArray(element) || isObject(element) ) {
+
+                return element;
+
             } else {
-                return func(baseEl, args);
+
+                return toArray(document.querySelectorAll(element));
+
             }
         }
 
-        var _toArr = function(els) {
-            return [].slice.call(els);
-        }
-        var _css = function(el, valueArray) {
-            var value = valueArray[0];
-            var valueToSet = valueArray.length > 1 ? valueArray[1] : undefined;
-            if (valueToSet) {
-                el.style.cssText += value + ':' + valueToSet + ' !important';
-            }
-            return el.ownerDocument.defaultView.getComputedStyle(el, null)[value];
+        // interface for css method
+        var iCss = function(property, value) {
+            return apply(css, iUnderlyingDOM, property, value);
         }
 
-        var css = function(value, toSet) {
-            return _apply(_css, _underlyingElement, value, toSet);
-        }
-        var _docEl = function(param) {
-            if (Object.prototype.toString.call(param) === '[object Array]' || typeof(param) === 'object') {
-                return param;
-            } else if (param.charAt(0) === '.') {
-                return _toArr(document.getElementsByClassName(param.substring(1)));
-            } else if (param.charAt(0) === '#') {
-                return [document.getElementById(param.substring(1))];
-            } else {
-                return _toArr(document.getElementsByTagName(param));
-            }
-        }
-        var _underlyingElement = _docEl(input);
-        var result = {
-            e: _underlyingElement,
-            css: css
+        // underlying DOM (which will be exposed)
+        var iUnderlyingDOM = dom(input);
+
+
+        return {
+
+            //either the argument dom element 
+            //or the dom's retrieved from given css selector
+            dom: iUnderlyingDOM,
+
+            // css façade exposed for getting and setting style
+            css: iCss
+
         };
-        return result;
     }
+
     global.$mlst = mlst;
+
 }(this));

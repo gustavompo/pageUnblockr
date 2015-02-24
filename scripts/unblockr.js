@@ -1,7 +1,8 @@
 var unblockr = (function() {
+    'use strict';
     var getBlockerElements = function() {
         var blockers = [];
-        var elementsNonAuto = $mlst('div').e.concat($mlst('span').e);
+        var elementsNonAuto = $mlst('div').dom.concat($mlst('span').dom);
         var visibleElsWithZIndex = elementsNonAuto.filter(function(el) {
             var zIx = $mlst(el).css('zIndex');
             if (zIx != 'auto' &&
@@ -36,7 +37,7 @@ var unblockr = (function() {
     var restoreScrollFrom = function(el) {
         var overflow = $mlst(el).css('overflow');
         if (overflow === 'hidden') {
-            $mlst(el).css('overflow', 'visible');
+            $mlst(el).css('overflow', 'visible !important');
         }
     }
     var restoreScrollbar = function() {
