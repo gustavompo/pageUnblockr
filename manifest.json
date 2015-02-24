@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "name": "unmodal-it",
+    "name": "pageUnblockr",
     "version": "0.0.1",
     "description": "Chrome extension to remove page's blocking modals",
     "icons": {
@@ -14,11 +14,11 @@
             "19": "content/duster19.png",
             "38": "content/duster38.png"
         },
-        "default_title": "Unmodal boring page's modals!"
+        "default_title": "Unblock page!"
     },
     "author": "Gustavo Maloste",
     "background": {
-        "scripts": ["scripts/unmodalit-background.js"],
+        "scripts": ["scripts/unblockr-background.js"],
         "persistent": false
     },
     "permissions": [
@@ -26,6 +26,9 @@
         "http://*/*",
         "https://*/*",
         "tabs"
-    ]
-
+    ],
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": ["scripts/mlst/mlst.js", "scripts/mlst/mlst-math.js", "scripts/unblockr.js"]
+    }]
 }
