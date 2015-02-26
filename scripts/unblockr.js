@@ -9,8 +9,9 @@ var unblockr = (function() {
     // If the ammount of total elements with the same is less tha 10
     // Or if it's zIndex is outside the standard deviation of all zIndexes
     var getBlockerElements = function() {
-        var ninetyPercentSDMultiplier = 1.645;
-        var blockers = [];
+        var blockers = [],
+            documentWidth = $mlst(window).width(),
+            documentHeight = $mlst(window).height();
 
         // filter whether an alement can be blocking page
         var blockrFilter = function(el) {
@@ -23,29 +24,51 @@ var unblockr = (function() {
             }
         }
 
-        var possibleBlockrs = $mlst(blockrsTypes).dom.filter(blockrFilter);
+        var zIndexedElements = $mlst(blockrsTypes).dom.filter(blockrFilter);
 
-        //if possible blockers amount is less than 10, return all of them
-        if (possibleBlockrs.length < 10) {
-
-            blockers = possibleBlockrs;
-
+        // return if A param is largem than B based in informed percentage
+        var isLargerIn = function(percentage, a, b) {
+            return ((a / b) * 100) > percentage;
         }
-        //else return only those with zIndex above the 90% standard deviation
-        else {
 
-            var zIxs = possibleBlockrs.map(function(el) {
-                return parseInt($mlst(el).css('zIndex'));
-            })
+        // the base element that blocks UI
+        // this and all elements with higher zIndex will be removed
+        var baseBlockrs = zIndexedElements.filter(function(el) {
+            var elWidth = $mlst(el).width();
+            var elHeight = $mlst(el).height();
+            var percentageLimit = 80;
+            if (isLargerIn(percentageLimit, elWidth, documentWidth) && isLargerIn(percentageLimit, elHeight, documentHeight)) {
+                return el;
+            }
+        });
 
-            var maxZIndexToAllow = mlst.math.standDeviat(zIxs).max * ninetyPercentSDMultiplier;
+        if (baseBlockrs.length === 0) {
+            return [];
+        }
 
-            blockers = possibleBlockrs.filter(function(el) {
-                if (parseInt($mlst(el).css('zIndex')) >= maxZIndexToAllow) {
-                    return el;
+        var min = function(valueGetter, array){
+            var minNumber = Number.MAX_VALUE;
+            var minElement = undefined;
+            for (var i = array.length - 1; i >= 0; i--) {
+                var currentNumber = valueGetter(array[i]);
+                if(currentNumber < minNumber ){
+                    minNumber = currentNumber;
+                    minElement = array[i];
                 }
-            });
+            };
+            return minElement;
         }
+
+        var blockerWithTheLowestIndex = min(function(el){ return parseInt($mlst(el).css('zIndex')); }, baseBlockrs);
+        
+        var lowestZIndex = parseInt($mlst(blockerWithTheLowestIndex).css('zIndex'));
+
+        blockers = zIndexedElements.filter(function(el) {
+            if (parseInt($mlst(el).css('zIndex')) >= lowestZIndex) {
+                return el;
+            }
+        });
+
         return blockers;
     }
 
@@ -94,6 +117,7 @@ var unblockr = (function() {
         areThereBlockers: iAreThereBlockers,
         removeBlockersNow: iRemoveBlockersNow
     };
+
 }());
 
 setTimeout(function() {

@@ -75,6 +75,29 @@
             return apply(css, iUnderlyingDOM, property, value);
         }
 
+
+        // Returns the width of the element
+        var iWidth = function(){
+
+            if( iUnderlyingDOM === window ){
+
+                return iUnderlyingDOM.innerWidth;
+            }
+
+            return iUnderlyingDOM.offsetWidth;
+        }
+
+        // Returns the height of the element
+        var iHeight = function(){
+
+            if( iUnderlyingDOM === window ){
+
+                return iUnderlyingDOM.innerHeight;
+            }
+
+            return iUnderlyingDOM.offsetHeight;
+        }
+
         // underlying DOM (which will be exposed)
         var iUnderlyingDOM = dom(input);
 
@@ -85,8 +108,14 @@
             //or the dom's retrieved from given css selector
             dom: iUnderlyingDOM,
 
-            // css façade exposed for getting and setting style
-            css: iCss
+            // css interface for getting and setting style
+            css: iCss,
+            
+            // width interface for getting element's width
+            width: iWidth,
+            
+            // height interface for getting element's height
+            height: iHeight
 
         };
     }
