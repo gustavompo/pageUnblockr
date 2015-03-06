@@ -37,7 +37,7 @@
             if (value) {
 
                 //if its important, setProperty will not work
-                if(value.indexOf('!impotant') >= 0){
+                if(value.indexOf('!important') >= 0){
 
                     element.style.removeProperty(property);
                     element.style.cssText += property + ':' + value;

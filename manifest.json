@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "pageUnblockr",
-    "version": "0.0.3",
+    "version": "0.0.5",
     "description": "Remove page's blocking modals (layer which denies you from navigating)",
     "icons": {
         "16": "content/duster16.png",
