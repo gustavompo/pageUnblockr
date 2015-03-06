@@ -46,12 +46,12 @@ var unblockr = (function() {
             return [];
         }
 
-        var min = function(valueGetter, array){
+        var min = function(valueGetter, array) {
             var minNumber = Number.MAX_VALUE;
             var minElement = undefined;
             for (var i = array.length - 1; i >= 0; i--) {
                 var currentNumber = valueGetter(array[i]);
-                if(currentNumber < minNumber ){
+                if (currentNumber < minNumber) {
                     minNumber = currentNumber;
                     minElement = array[i];
                 }
@@ -59,8 +59,10 @@ var unblockr = (function() {
             return minElement;
         }
 
-        var blockerWithTheLowestIndex = min(function(el){ return parseInt($mlst(el).css('zIndex')); }, baseBlockrs);
-        
+        var blockerWithTheLowestIndex = min(function(el) {
+            return parseInt($mlst(el).css('zIndex'));
+        }, baseBlockrs);
+
         var lowestZIndex = parseInt($mlst(blockerWithTheLowestIndex).css('zIndex'));
 
         blockers = zIndexedElements.filter(function(el) {
@@ -119,13 +121,15 @@ var unblockr = (function() {
     };
 
 }());
+window.onload = function() {
+    setTimeout(function() {
+        chrome.runtime.sendMessage({
+            init: true,
+            blockrs: unblockr.areThereBlockers()
+        });
+    }, 1500);
+}
 
-setTimeout(function() {
-    chrome.runtime.sendMessage({
-        init: true,
-        blockrs: unblockr.areThereBlockers()
-    });
-}, 500);
 
 
 chrome.runtime.onMessage.addListener(
