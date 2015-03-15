@@ -1,6 +1,6 @@
 (function(global){
-	'use strict';
-	var filterPositiveOutSD = function(values, deviationMultip) {
+    'use strict';
+    var filterAboveOutsideDeviation = function(values, deviationMultip) {
         var deviMultplier = deviationMultip || 1.645;
         var validValues = [];
         values.map(function(el) {
@@ -41,9 +41,37 @@
         };
     }
 
+    function makeCircle(center, radius, detailLevelInDegree) {
+        var circle = [],
+            detailLevelInDegree = detailLevelInDegree || 1,
+            d = radius / 6378.8;
+
+        var yRad = (Math.PI / 180) * center.y;
+        var xRad = (Math.PI / 180) * center.x;
+
+        for (var a = 1; a <= 360; a += detailLevelInDegree) {
+            var tc = (Math.PI / 180) * (a + 180);
+            var y = Math.asin(Math.sin(yRad) * Math.cos(d) + Math.cos(yRad) * Math.sin(d) * Math.cos(tc));
+            var dlng = Math.atan2(Math.sin(tc) * Math.sin(d) * Math.cos(yRad), Math.cos(d) - Math.sin(yRad) * Math.sin(y));
+            var x = ((xRad - dlng + Math.PI) % (2 * Math.PI)) - Math.PI;
+            var resultY = parseFloat(y * (180 / Math.PI));
+            var resultX = parseFloat(x * (180 / Math.PI));
+            circle.push({
+                y: resultY,
+                x: resultX
+            });
+        }
+        
+        return {
+            circle: circle,
+            radius: radius
+        };
+    }
+
     global.mlst = global.mlst || {};
     global.mlst.math = {
-    	standDeviat : standDeviat,
-    	filterPositiveOutSD : filterPositiveOutSD
-    };
+        standardDeviation: standDeviat,
+        makeCircle: makeCircle,
+        filterAboveOutsideDeviation: filterAboveOutsideDeviation
+    }
 }(this))
